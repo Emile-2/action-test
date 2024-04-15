@@ -1,6 +1,9 @@
 name: Use reusable workflow
-
-on: [push, pull_request]
+#[push, pull_request]
+on: 
+  push:
+    branches:
+      - "main"
 
 jobs:
   check_rebase:
