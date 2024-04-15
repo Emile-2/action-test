@@ -1,0 +1,28 @@
+name: Check if branch is rebased
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  check_rebase:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Check if branch is rebased
+      run: |
+        current_branch=$(git rev-parse --abbrev-ref HEAD)
+        git fetch origin
+        latest_upstream_commit=$(git rev-parse origin/master)
+        if git merge-base --is-ancestor $latest_upstream_commit $current_branch; then
+            echo "The branch '$current_branch' has been rebased on 'origin/master'."
+        else
+            echo "The branch '$current_branch' has not been rebased on 'origin/master'."
+            exit 1
+        fi
