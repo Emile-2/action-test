@@ -7,4 +7,4 @@ jobs:
     uses: Emile-2/reusable_workflw/.github/workflows/main.yml@main
     with:
       base_branch: 'main'
-      github_token: ${{ secrets.GITHUB_TOKEN }}
+      github_token: ${{ secrets.github_token }}
