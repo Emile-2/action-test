@@ -1,12 +1,10 @@
 name: Use reusable workflow
 
-on:
-  push:
-    branches:
-      - '**'
+on: [push, pull_request]
 
 jobs:
   check_rebase:
     uses: Emile-2/reusable_workflw/.github/workflows/main.yml@main
     with:
-      branch: ${{ github.ref_name }}
+      base_branch: 'main'
+      github_token: ${{ secrets.GITHUB_TOKEN }}
