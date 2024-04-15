@@ -7,6 +7,6 @@ on:
 
 jobs:
   check_rebase:
-    uses: Emile-2/reusable_workflw/blob/main/.github/workflows/check_reabse.yml@main
+    uses: Emile-2/reusable_workflw/.github/workflows/check_reabse.yml@main
     with:
       branch: ${{ github.ref_name }}
