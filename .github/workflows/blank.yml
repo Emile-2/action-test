@@ -1,9 +1,8 @@
 name: Use reusable workflow
 #[push, pull_request]
 on: 
-  push:
-    branches:
-      - "feature/*"
+  pull_request:
+    types:[opened, reopened, synchronize]
 
 jobs:
   check_rebase:
