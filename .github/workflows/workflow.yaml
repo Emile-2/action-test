@@ -1,0 +1,36 @@
+name: Rebase Check Workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the base branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Get SHA for base branch
+        id: base_branch
+        run: echo "BASE_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Checkout the head branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Check if head branch is rebased onto base branch
+        run: |
+          HEAD_SHA=$(git rev-parse HEAD)
+          BASE_SHA=$(echo $BASE_SHA)
+          echo "Head branch SHA: $HEAD_SHA"
+          echo "Base branch SHA: $BASE_SHA"
+          if git merge-base --is-ancestor $BASE_SHA $HEAD_SHA; then
+            echo "The branch has been rebased on top of the target branch."
+          else
+            echo "The branch has NOT been rebased on top of the target branch."
+            exit 1
+          fi
