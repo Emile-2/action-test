@@ -3,8 +3,7 @@ name: Use reusable workflow
 on: 
 
   pull_request:
-    branches:
-      - "feature/*"
+    types: [opened, synchronize, reopened]
 
 jobs:
   check_rebase:
