@@ -3,7 +3,7 @@ name: Use reusable workflow
 on: 
   push:
     branches:
-      - "main"
+      - "feature/*"
 
 jobs:
   check_rebase:
