@@ -8,8 +8,8 @@ on:
 jobs:
   check_rebase:
     uses: Emile-2/reusable_workflw/.github/workflows/main.yml@main
-    # with:
-    #   base_branch: 'main'
-      # token: ${{ secrets.github_token }}
+    with:
+      base_ref: ${{ github.base_ref }}
+      head_ref: ${{ github.head_ref }}
 
       
