@@ -1,17 +1,29 @@
-name: Enforce Rebase Policy
+name: Check Feature Branch Rebase
 
 on: 
   pull_request:
-    branches: [ main ]  # Trigger when pull requests are opened/updated targeting 'main'
+    branches: [ main ]  
 
 jobs:
-  check_rebase:
+  check-rebase:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Check for required rebase
+      - uses: actions/checkout@v3 
+        
+      - name: Check if Rebase is Needed
+        id: rebase_check
         run: |
-          hash1=$(git show-ref --heads -s origin/main)  # Get latest commit on remote 'main'
-          hash2=$(git merge-base origin/main HEAD)    # 'HEAD' refers to the current branch
-          [ "${hash1}" = "${hash2}" ] && echo "OK - Rebase not needed" || echo "Error: Rebase is required"
+          git fetch origin main 
+          MERGE_BASE=$(git merge-base HEAD origin/main)  
+          LATEST_FEATURE_COMMIT=$(git rev-parse HEAD)
+
+          if [[ "$MERGE_BASE" != "$LATEST_FEATURE_COMMIT" ]]; then
+            echo "::set-output name=needs-rebase::true"
+          else
+            echo "::set-output name=needs-rebase::false"
+          fi
+
+      - name: Notify if Rebase Needed 
+        if: ${{ steps.rebase_check.outputs.needs-rebase == 'true' }} 
+        run: |
+          echo "Feature branch is not up-to-date with main. Please rebase!"
