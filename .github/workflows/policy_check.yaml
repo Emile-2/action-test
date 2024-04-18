@@ -1,8 +1,9 @@
 name: Check for Rebase
 
 on:
-  pull_request:
-    types: [opened, synchronize, ready_for_review]
+  push:
+    branches: 
+      - 'feature/*'
 
 jobs:
   check_rebase:
