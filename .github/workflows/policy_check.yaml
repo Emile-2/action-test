@@ -1,23 +1,17 @@
-name: Check for Rebase
+name: Enforce Rebase Policy
 
-on:
-  push:
-    branches: 
-      - 'feature/*'
+on: 
+  pull_request:
+    branches: [ main ]  # Trigger when pull requests are opened/updated targeting 'main'
 
 jobs:
   check_rebase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Fetch main branch
-        run: git fetch origin main
-      - name: Check if feature branch is rebased
-        run: | 
-          echo "Output of git log origin/main..HEAD: $(git log origin/main..HEAD)" # Add this line
-          if [[ -n $(git log origin/main..HEAD) ]]; then
-            echo "Error: Feature branch needs to be rebased on main"
-            exit 1
-          else
-            echo "Feature branch is rebased"
-          fi
+
+      - name: Check for required rebase
+        run: |
+          hash1=$(git show-ref --heads -s origin/main)  # Get latest commit on remote 'main'
+          hash2=$(git merge-base origin/main HEAD)    # 'HEAD' refers to the current branch
+          [ "${hash1}" = "${hash2}" ] && echo "OK - Rebase not needed" || echo "Error: Rebase is required"
