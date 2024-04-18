@@ -25,13 +25,16 @@ jobs:
 
       - name: Check if head branch is rebased onto base branch
         run: |
-          HEAD_SHA=$(git rev-parse HEAD)
-          BASE_SHA=$(echo $BASE_SHA)
-          echo "Head branch SHA: $HEAD_SHA"
-          echo "Base branch SHA: $BASE_SHA"
-          if git merge-base --is-ancestor $BASE_SHA $HEAD_SHA; then
-            echo "The branch has been rebased on top of the target branch."
-          else
-            echo "The branch has NOT been rebased on top of the target branch."
+          git_hash=$(git rev-parse "$GITHUB_SHA")
+          echo "branch commit: $git_hash"
+
+          main_head=$(git rev-parse origin/main)
+          echo "Trunk head: $main_head"
+
+          branch_source_commit_id="$git merge-base "git_hash" origin/main)"
+          echo "First commit of this branch: $branch_source_commit_id"
+
+          if [[ "$branch_source_commit_id" != "$main_head"]]; then
+            echo "Error: you need to rebase with head main"
             exit 1
           fi
