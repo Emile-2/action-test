@@ -16,4 +16,6 @@ jobs:
           if [[ -n $(git log --merges origin/main..HEAD) ]]; then
             echo "Error: Feature branch needs to be rebased on main"
             exit 1
+          else
+            echo "Feature branch is rebased"
           fi
