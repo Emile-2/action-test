@@ -14,10 +14,10 @@ jobs:
         id: rebase_check
         run: |
           git fetch origin main 
-          MERGE_BASE=$(git merge-base HEAD origin/main)  
-          LATEST_FEATURE_COMMIT=$(git rev-parse HEAD)
+          LATEST_FEATURE_COMMIT=$(git rev-parse HEAD)  
+          MERGE_BASE=$(git merge-base HEAD origin/main)
 
-          if [[ "$MERGE_BASE" != "$LATEST_FEATURE_COMMIT" ]]; then
+          if [[ "$LATEST_FEATURE_COMMIT" != "$MERGE_BASE" ]]; then
             echo "::set-output name=needs-rebase::true"
           else
             echo "::set-output name=needs-rebase::false"
