@@ -11,17 +11,10 @@ jobs:
     steps:
       - name: Checkout the base branch
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.base_ref }}
-
-      - name: Get SHA for base branch
-        id: base_branch
-        run: echo "BASE_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Checkout the head branch
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.head_ref }}
+        uses: actions/checkout@v3
+      
 
       - name: Check if head branch is rebased onto base branch
         run: |
@@ -34,7 +27,7 @@ jobs:
           branch_source_commit_id="$git merge-base "git_hash" origin/main)"
           echo "First commit of this branch: $branch_source_commit_id"
 
-          if [[ "$branch_source_commit_id" != "$main_head"]]; then
+          if [[ "$branch_source_commit_id" != "$main_head" ]]; then
             echo "Error: you need to rebase with head main"
             exit 1
           fi
