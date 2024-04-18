@@ -1,0 +1,19 @@
+name: Check for Rebase
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  check_rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fetch main branch
+        run: git fetch origin main
+      - name: Check if feature branch is rebased
+        run: | 
+          if [[ -n $(git log --merges origin/main..HEAD) ]]; then
+            echo "Error: Feature branch needs to be rebased on main"
+            exit 1
+          fi
