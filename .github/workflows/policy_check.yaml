@@ -11,19 +11,15 @@ jobs:
       - uses: actions/checkout@v3 
         
       - name: Check if Rebase is Needed
-        id: rebase_check
         run: |
           git fetch origin main 
           LATEST_FEATURE_COMMIT=$(git rev-parse HEAD)  
           MERGE_BASE=$(git merge-base HEAD origin/main)
 
           if [[ "$LATEST_FEATURE_COMMIT" != "$MERGE_BASE" ]]; then
-            echo "::set-output name=needs-rebase::true"
+            echo "rebase"
           else
-            echo "::set-output name=needs-rebase::false"
+            echo "dont rebase"
           fi
 
-      - name: Notify if Rebase Needed 
-        if: ${{ steps.rebase_check.outputs.needs-rebase == 'true' }} 
-        run: |
-          echo "Feature branch is not up-to-date with main. Please rebase!"
+ 
