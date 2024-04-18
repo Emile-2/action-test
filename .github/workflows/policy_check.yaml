@@ -13,7 +13,8 @@ jobs:
         run: git fetch origin main
       - name: Check if feature branch is rebased
         run: | 
-          if [[ -n $(git log --merges origin/main..HEAD) ]]; then
+          echo "Output of git log origin/main..HEAD: $(git log origin/main..HEAD)" # Add this line
+          if [[ -n $(git log origin/main..HEAD) ]]; then
             echo "Error: Feature branch needs to be rebased on main"
             exit 1
           else
