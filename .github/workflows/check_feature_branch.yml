@@ -1,9 +1,8 @@
 name: Check Feature Branch Rebase
 
 on: 
-  push:
-    branches: 
-      - "feature/*"  # Adjust if your main branch has a different name
+  pull_request:
+      
 
 jobs:
   check-rebase:
