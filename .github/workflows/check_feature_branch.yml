@@ -3,7 +3,7 @@ name: Check Feature Branch Rebase
 on: 
   push:
     branches: 
-      - main  # Adjust if your main branch has a different name
+      - "feature/*"  # Adjust if your main branch has a different name
 
 jobs:
   check-rebase:
