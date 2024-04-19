@@ -1,0 +1,26 @@
+name: Check Feature Branch Rebase
+
+on: 
+  push:
+    branches: 
+      - main  # Adjust if your main branch has a different name
+
+jobs:
+  check-rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Rebase Status
+        run: |
+          feature_branch=$(git rev-parse --abbrev-ref HEAD)
+          main_branch="main"  # Replace 'main' if needed
+
+          merge_base=$(git merge-base $feature_branch $main_branch)
+
+          if git merge-base --is-ancestor $merge_base HEAD; then
+              echo "Feature branch seems rebased onto $main_branch"
+          else
+              echo "Feature branch might not be rebased. Consider rebasing."
+              # Optionally exit with an error if you want to enforce rebasing:
+              # exit 1 
+          fi
