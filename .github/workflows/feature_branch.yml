@@ -16,13 +16,14 @@ jobs:
 
       - name: Check for Rebase
         run: |
-          git fetch origin      # Ensure we have the latest from the remote
+          git fetch origin      
           git log --oneline --graph --decorate main..HEAD 
-          echo "------"         # Separator
-          git branch -vv        # Show branch status
-          if [[ -n $(git log --oneline main..HEAD) ]]; then
+          echo "------"         
+          git branch -vv       
+          if [[ -n $(git log --oneline main...HEAD) ]]; then # Note the '...'
             echo "::warning::Feature branch needs to be rebased on top of main before merging. Please rebase locally."
             exit 0  
           else
             echo "Feature branch is up-to-date with main."
           fi
+
