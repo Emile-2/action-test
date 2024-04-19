@@ -1,23 +1,28 @@
-name: Check Feature Branch Rebasing
+name: Rebase Check
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  check-rebasing:
+  rebase_check:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Get base SHA
-        run: echo "BASE_SHA=$(git rev-parse origin/main)" >> $GITHUB_ENV
-
-      - name: Check for linear history
-        run: |
-          git fetch origin main
-          git branch --contains origin/main > branches.txt
-          if grep -q $(git rev-parse HEAD) branches.txt; then
-            echo "Pull request commits appear to be linear on top of main branch. Rebasing is not necessary."
-          else
-            echo "Pull request commits do not appear to be a linear history on top of main branch. Consider rebasing your branch for a cleaner integration."
-          fi
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Check rebase
+      run: |
+        git fetch origin main
+        git checkout main
+        git reset --hard origin/main
+        git checkout ${{ github.event.pull_request.head.ref }}
+        git rebase main
+        if [ $? -eq 0 ]; then
+          echo "Rebase successful."
+          exit 0
+        else
+          echo "Rebase failed. Please rebase your branch onto main."
+          exit 1
+        fi
