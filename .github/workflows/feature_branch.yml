@@ -15,6 +15,11 @@ jobs:
       with:
         fetch-depth: 0  # Required to fetch the entire branch history
 
+    - name: Install git-rev-list
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git-rev-list
+
     - name: Check if rebased
       id: check-rebase
       run: |
@@ -24,7 +29,7 @@ jobs:
         feature_branch_commit=$(git rev-parse HEAD)
         echo "feature_branch_commit=$feature_branch_commit" >> $GITHUB_OUTPUT
 
-        rebased=$(git merge-base --is-ancestor $main_branch_commit $feature_branch_commit; echo $?)
+        rebased=$(git rev-list --ancestry-path $main_branch_commit..$feature_branch_commit | grep -q "^$main_branch_commit$"; echo $?)
         if [[ $rebased -eq 0 ]]; then
           echo "rebased=true" >> $GITHUB_OUTPUT
         else
