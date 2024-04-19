@@ -1,36 +1,24 @@
-name: Enforce Rebase Before Merge
+name: Check Rebase Status
 
-on: 
+on:  
   push:
-    branches-ignore: [ main ]  
-  pull_request: 
+    branches: [main]  
 
 jobs:
-  enforce_rebase:
+  rebase-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3  
+      - name: Set up Python 
+        uses: actions/setup-python@v3
         with:
-          fetch-depth: 0
-
-      - name: Check for Rebase
-        if: ${{ github.event.pull_request }}  # Ensure we're in a pull request context
-        run: |
-          if [[ -n $(git log --oneline main..HEAD) ]]; then
-            echo "::error::Feature branch needs to be rebased on top of main before merging. Please rebase locally."
-            exit 1 
-          fi
-
-      - name: Report Success
-        if: ${{ github.event.pull_request }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: context.payload.after,  
-              state: 'success',
-              description: 'Feature branch is rebased!',
-              context: 'Rebase Check' 
-            });
+          python-version: '3.x' 
+      - name: Install GitPython
+        run: pip install GitPython
+      - name: Run rebase check script
+        run: python rebase_check.py  
+      - name: Take action based on result (optional)
+        if: ${{ steps.rebase-check.outputs.needs_rebase == 'true' }} 
+        run: |  
+          echo "Feature branch needs rebase!"
+          # Add more actions here: comment on PR, send notification, etc.
