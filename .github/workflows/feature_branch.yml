@@ -1,11 +1,9 @@
-name: Enforce Feature Branch Rebase (Informational)
+name: Enforce Rebase Before Merge
 
 on: 
-  pull_request_target: 
-    types: [opened, synchronize]
-    branches:
-      - main
-
+  push:
+    branches-ignore: [ main ]  # Only trigger on pushes to non-main branches
+    
 jobs:
   enforce_rebase:
     runs-on: ubuntu-latest
@@ -15,15 +13,23 @@ jobs:
           fetch-depth: 0
 
       - name: Check for Rebase
+        if: ${{ github.event.pull_request }}  # Ensure we're in a pull request context
         run: |
-          git fetch origin      
-          git log --oneline --graph --decorate main..HEAD 
-          echo "------"         
-          git branch -vv       
-          if [[ -n $(git log --oneline main...HEAD) ]]; then # Note the '...'
-            echo "::warning::Feature branch needs to be rebased on top of main before merging. Please rebase locally."
-            exit 0  
-          else
-            echo "Feature branch is up-to-date with main."
+          if [[ -n $(git log --oneline main..HEAD) ]]; then
+            echo "::error::Feature branch needs to be rebased on top of main before merging. Please rebase locally."
+            exit 1 
           fi
 
+      - name: Report Success
+        if: ${{ github.event.pull_request }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.after,  // The latest commit on the feature branch
+              state: 'success',
+              description: 'Feature branch is rebased!',
+              context: 'Rebase Check' 
+            });
