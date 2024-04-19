@@ -1,28 +1,38 @@
-name: Rebase Check
+name: Check Rebase
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
 
 jobs:
-  rebase_check:
+
+  check-rebase:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Check rebase
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Required to fetch the entire branch history
+
+    - name: Check if rebased
+      id: check-rebase
       run: |
-        git fetch origin main
-        git checkout main
-        git reset --hard origin/main
-        git checkout ${{ github.event.pull_request.head.ref }}
-        git rebase main
-        if [ $? -eq 0 ]; then
-          echo "Rebase successful."
-          exit 0
+        main_branch_commit=$(git rev-parse origin/main)
+        echo "main_branch_commit=$main_branch_commit" >> $GITHUB_OUTPUT
+
+        feature_branch_commit=$(git rev-parse HEAD)
+        echo "feature_branch_commit=$feature_branch_commit" >> $GITHUB_OUTPUT
+
+        rebased=$(git merge-base --is-ancestor $main_branch_commit $feature_branch_commit; echo $?)
+        if [[ $rebased -eq 0 ]]; then
+          echo "rebased=true" >> $GITHUB_OUTPUT
         else
-          echo "Rebase failed. Please rebase your branch onto main."
-          exit 1
+          echo "rebased=false" >> $GITHUB_OUTPUT
         fi
+
+    - name: Check rebase status
+      if: steps.check-rebase.outputs.rebased == 'false'
+      run: |
+        echo "The feature branch has not been rebased onto main."
+        exit 1
