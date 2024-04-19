@@ -2,7 +2,8 @@ name: Check Rebase Status
 
 on:  
   push:
-    branches: [main]  
+    branches: 
+      - 'feature/**' # Wildcard pattern to match feature branches
 
 jobs:
   rebase-check:
