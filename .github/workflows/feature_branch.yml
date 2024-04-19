@@ -1,0 +1,19 @@
+name: Enforce Feature Branch Rebase
+
+on: 
+  pull_request_target: 
+    types: [opened, synchronize]
+    branches:
+      - main
+
+jobs:
+  enforce_rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Fail if not rebased
+        run: |
+          if [[ -n $(git log --oneline main..HEAD) ]]; then
+            echo "::error::Feature branch is not rebased on top of main. Please rebase before merging."
+            exit 1 
+          fi
