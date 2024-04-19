@@ -1,25 +1,23 @@
-name: Check Rebase Status
+name: Check Feature Branch Rebasing
 
-on:  
-  push:
-    branches: 
-      - 'feature/**' # Wildcard pattern to match feature branches
+on:
+  pull_request:
 
 jobs:
-  rebase-check:
+  check-rebasing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3  
-      - name: Set up Python 
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.x' 
-      - name: Install GitPython
-        run: pip install GitPython
-      - name: Run rebase check script
-        run: python rebase_check.py  
-      - name: Take action based on result (optional)
-        if: ${{ steps.rebase-check.outputs.needs_rebase == 'true' }} 
-        run: |  
-          echo "Feature branch needs rebase!"
-          # Add more actions here: comment on PR, send notification, etc.
+      - uses: actions/checkout@v3
+
+      - name: Get base SHA
+        run: echo "BASE_SHA=$(git rev-parse origin/main)" >> $GITHUB_ENV
+
+      - name: Check for linear history
+        run: |
+          git fetch origin main
+          git branch --contains origin/main > branches.txt
+          if grep -q $(git rev-parse HEAD) branches.txt; then
+            echo "Pull request commits appear to be linear on top of main branch. Rebasing is not necessary."
+          else
+            echo "Pull request commits do not appear to be a linear history on top of main branch. Consider rebasing your branch for a cleaner integration."
+          fi
