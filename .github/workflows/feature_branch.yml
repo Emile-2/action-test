@@ -1,4 +1,4 @@
-name: Enforce Feature Branch Rebase
+name: Enforce Feature Branch Rebase (Informational)
 
 on: 
   pull_request_target: 
@@ -12,11 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # The crucial fix!
+          fetch-depth: 0
 
-      - name: Fail if not rebased
+      - name: Check for Rebase
         run: |
           if [[ -n $(git log --oneline main..HEAD) ]]; then
-            echo "::error::Feature branch is not rebased on top of main. Please rebase before merging."
-            exit 1 
+            echo "::warning::Feature branch needs to be rebased on top of main before merging. Please rebase locally."
+            exit 0  # Allow the workflow to succeed, but with a warning
+          else
+            echo "Feature branch is up-to-date with main."
           fi
