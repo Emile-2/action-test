@@ -15,11 +15,6 @@ jobs:
       with:
         fetch-depth: 0  # Required to fetch the entire branch history
 
-    - name: Install git-rev-list
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git-rev-list
-
     - name: Check if rebased
       id: check-rebase
       run: |
